@@ -1,0 +1,69 @@
+{% extends "game_temp.html" %}
+
+
+{% block content %}
+
+
+   
+  <!-- MultiStep Form -->
+  <form id="signUpForm" method="post"  action=" {% url 'start' %} ">
+    {% csrf_token %}
+    <!-- start step indicators -->
+    <div class="form-header d-flex mb-4">
+        <span class="stepIndicator">Account Setup</span>
+        <span class="stepIndicator">Social Profiles</span>
+        <span class="stepIndicator">Personal Details</span>
+    </div>
+    <!-- end step indicators -->
+
+    <!-- step one -->
+    <div class="step">
+        <p class="text-center mb-4">Bienvenue , veuiller suivre les etapes pour continuer</p>
+
+    </div>
+
+    <!-- step two -->
+    <div class="step">
+        <p class="text-center mb-4">Selectionner le niveau de jeu</p>
+        <div class="mb-3">
+          <select class="form-select form-select-lg" name="niveau"  id="niveau" onchange="affiche()" >
+            <option >--------Choix Niveau-----</option>
+            <option value="Amateur"  >Amateur</option>
+            <option value="Debutant"  >Debutant</option>
+            <option value="Intermediaire" >Intermediaire</option>
+            <option value="Maitre" >Maitre</option>
+            <option value="Professionnel" >Professionnel</option>
+            <option value="Expert" >Expert</option>
+          </select>
+        </div>
+    </div>
+
+    <!-- step three -->
+    <div class="step">
+      <p class="text-center mb-4">Veuillez choisir une catégorie</p>
+      <div class="mb-3">
+          <select class="form-select form-select-lg" name="categorie" id="categorie">
+              <option>-------- Choisir catégorie -----</option>
+              {% for categori in category %}
+
+                <option value="{{categori.name}}"  > {{categori.name}} </option>
+
+              {% endfor %}
+      
+          </select>
+      </div>
+  </div>
+
+    <!-- start previous / next buttons -->
+    <div class="form-footer d-flex">
+        <button type="button" id="prevBtn" onclick="nextPrev(-1)">Precedent</button>
+        <button type="button" id="nextBtn" onclick="nextPrev(1)">Suivant</button>
+    </div>
+    <!-- end previous / next buttons -->
+</form>
+<!-- /.MultiStep Form -->
+  
+
+
+
+{% endblock content %}

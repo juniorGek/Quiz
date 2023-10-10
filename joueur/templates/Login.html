@@ -1,0 +1,271 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page de Connexion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+	
+		<link rel="stylesheet" href=" {% static 'css/ionicons.min.css' %} ">
+		<link rel="stylesheet" href=" {% static 'css/style.css' %} ">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-box {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px; /* Largeur maximale du card */
+            width: 100%;
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .social-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .btn-google {
+            background-color: #DB4437;
+        }
+
+        .btn-facebook {
+            background-color: #1877F2;
+        }
+
+        .btn-apple {
+            background-color: #000;
+        }
+
+        .btn-register {
+            background-color: #0066cc;
+        }
+
+        .btn-login {
+            background-color: #007bff;
+        }
+
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        /* Ajoutez un peu de marge à gauche aux icônes */
+        .btn i {
+            margin-right: 12px;
+        }
+
+        /* Texte stylé au début de la page */
+        .intro-text {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* Espacement entre les boutons S'inscrire et Se connecter */
+        .btn-register, .btn-login {
+            margin-top: 10px;
+        }
+        /* Styles personnalisés pour le formulaire */
+       
+
+        .custom-alert {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #e74c3c; /* Couleur de la bordure */
+            background-color: #f2dede; /* Couleur de fond */
+            color: #a94442; /* Couleur du texte */
+            border-radius: 5px; /* Coins arrondis */
+        }
+
+        /* Styles personnalisés pour le bouton de fermeture */
+        .custom-close-btn {
+            font-size: 20px;
+            color: #a94442; /* Couleur du bouton */
+            cursor: pointer;
+        }
+
+
+    </style>
+</head>
+<body>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if 'error' in message.tags %}alert-danger{% elif 'success' in message.tags %}alert-success{% endif %} alert-dismissible fade show d-flex justify-content-center align-items-center" role="alert">
+                <strong>{% if 'error' in message.tags %}Erreur:{% elif 'success' in message.tags %}Succès:{% endif %}</strong>
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Fermer">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+
+    <div class="container">
+        <div class="login-box">
+            <h2>Connectez-vous avec</h2>
+            <div class="social-buttons">
+                <a href="#" class="btn btn-google"><i class="fab fa-google"></i> Continuer avec Google</a>
+                <a href="#" class="btn btn-facebook"><i class="fab fa-facebook-f"></i> Continuer avec Facebook</a>
+                <a href="#" class="btn btn-apple"><i class="fab fa-apple"></i> Continuer avec Apple</a>
+            </div>
+            <p class="mt-4">Ou</p>
+
+            <a href="#" class="btn btn-register" data-toggle="modal" data-target="#exampleModalCenter" >S'inscrire</a>
+            <a href="#" class="btn btn-login" data-toggle="modal" data-target="#exampleModal">Se connecter</a>
+        </div>
+    </div>
+
+
+<!-- The Modal inscription -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close d-flex align-items-center justify-content-center" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true" class="ion-ios-close"></span>
+          </button>
+        </div>
+        <div class="modal-body p-4 py-5 p-md-5" id="modal-body" >
+            <form action=" {% url 'register' %} " method="post" class="signup-form" id="signup-form">
+                {% csrf_token %}
+                
+                        <div class="form-group mb-2">
+                            <label for="name">Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="John Doe" required >
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="email">Email Address</label>
+                            <input type="email" name="email"  class="form-control" placeholder="johndoe@gmail.com" required>
+                        </div>
+                <div class="form-group mb-2">
+                    <label for="password">Passwords</label>
+                    <input type="password" name="passwords" class="form-control" placeholder="Password" required>
+                </div>
+                <div class="form-group mb-2">
+                    <label for="password">Confirmez Passord</label>
+                    <input type="password" name="cpw" class="form-control" placeholder="Password" required>
+                </div>
+                <div class="form-group mb-2">
+                    <button type="submit" class="form-control btn btn-primary rounded submit px-3">S'inscrire</button>
+                </div>
+        </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+<!-- modal se connecter -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close d-flex align-items-center justify-content-center" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true" class="ion-ios-close"></span>
+          </button>
+        </div>
+        <div class="modal-body p-4 py-5 p-md-5"  >
+            <form method="post" action="{% url 'login' %}" class="signup-form">
+                {% csrf_token %}
+                        <div class="form-group mb-2">
+                            <label for="name">Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="John Doe" required >
+                        </div>
+                <div class="form-group mb-2">
+                    <label for="password">Password</label>
+                    <input type="password"  name="password" class="form-control" placeholder="Password" required >
+                </div>
+                <div class="form-group mb-2">
+                    <button type="submit" class="form-control btn btn-primary rounded submit px-3">Se connecter</button>
+                </div>
+        </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+
+<script src=" {% static 'js/jquery.min.js' %} "></script>
+<script src=" {% static 'js/popper.js' %} "></script>
+<script src=" {% static 'js/bootstrap.min.js' %} "></script>
+<script src=" {% static 'js/main.js' %} "></script>
+<script>
+    $(document).ready(function () {
+        // Sélectionnez les champs de mot de passe et de confirmation de mot de passe
+        var passwordField = $("input[name='passwords']");
+        var confirmPasswordField = $("input[name='cpw']");
+        var form = $("#signup-form");
+
+        // Fonction de validation du formulaire
+        form.submit(function (e) {
+            var password = passwordField.val();
+            var confirmPassword = confirmPasswordField.val();
+
+            if (password !== confirmPassword) {
+                showCustomAlert("Les mots de passe ne correspondent pas.");
+                e.preventDefault(); // Empêche la soumission du formulaire
+            } else if (!isPasswordValid(password)) {
+                showCustomAlert("Le mot de passe doit contenir au moins 8 caractères, une lettre majuscule, un chiffre et une lettre minuscule.");
+                e.preventDefault(); // Empêche la soumission du formulaire
+            }
+        });
+
+        // Fonction pour afficher une alerte personnalisée
+        function showCustomAlert(message) {
+            var customAlert = '<div class="alert alert-danger alert-dismissible fade show" role="alert">';
+            customAlert += message;
+            customAlert += '<button type="button" class="close" data-dismiss="alert" aria-label="Fermer">';
+            customAlert += '<span aria-hidden="true">&times;</span>';
+            customAlert += '</button>';
+            customAlert += '</div>';
+            $("#modal-body").prepend(customAlert);
+        }
+
+        // Fonction pour vérifier la validité du mot de passe
+        function isPasswordValid(password) {
+            var passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+            return passwordPattern.test(password);
+        }
+    });
+</script>
+
+</body>
+</html>

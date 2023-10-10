@@ -1,0 +1,221 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Questions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<style>
+    .list-group-item {
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: #f8f9fa; /* Couleur de fond au survol */
+    }
+
+    .list-group-item.active {
+        background-color: #007bff; /* Couleur de fond au clic */
+        color: #fff; /* Couleur du texte au clic */
+    }
+
+    .correct-answer {
+        animation: blink 0.5s infinite; /* Animation pour faire clignoter la réponse correcte */
+        background-color: #28a745 !important; /* Couleur de fond pour la réponse correcte */
+        color: #fff !important; /* Couleur du texte pour la réponse correcte */
+    }
+
+    @keyframes blink {
+        50% {
+            opacity: 0;
+        }
+    }
+
+
+    #game-info {
+        background-color: #f8f9fa;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 20px;
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    #game-info h3 {
+        color: #007bff;
+    }
+
+    #score {
+        font-size: 24px;
+        font-weight: bold;
+        color: #28a745;
+    }
+
+    #game-level {
+        font-size: 18px;
+        color: #6c757d;
+    }
+    #game-cat {
+        font-size: 18px;
+        color: #6c757d;
+    }
+</style>
+
+
+<audio id="wrong-answer-sound">
+    <source src=" {% static 'audio/failed.mp3' %} " type="audio/mpeg">
+</audio>
+<audio id="bravo-sound">
+    <source src="{% static 'audio/finish.mp3' %}" type="audio/mpeg">
+</audio>
+<audio id="correct-answer-sound">
+    <source src="{% static 'audio/success.mp3' %}" type="audio/mpeg">
+</audio>
+
+
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <h2 class="mb-4">Quiz Questions</h2>
+                <h2 class="mb-4"> {{category}} </h2>
+                <div class="card mb-4 question-card">
+                    <div class="card-body">
+                        <h5 class="card-title" id="question-text"></h5>
+                        <div class="list-group" id="answers-list">
+                            <!-- Réponses seront affichées ici -->
+                        </div>
+                    </div>
+                </div>
+            
+                <div id="game-info" class="mb-4" style="display: none;"> <!-- Div pour afficher les informations du jeu -->
+                    <h3>Fin des questions</h3>
+                    <p>Score: <span id="score"></span></p> <!-- Affichez le score ici -->
+                    <p>Niveau: <span id="game-level"></span></p> <!-- Affichez le niveau ici -->
+                    <p>Categorie: <span id="game-cat"></span></p> <!-- Affichez le niveau ici -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var contextData = {{ context_json|safe }};
+            var questionList = Object.values(contextData.question_answer_dict);
+            var shuffledQuestions = shuffle(questionList); // Fonction pour mélanger aléatoirement la liste
+            
+            console.log(shuffledQuestions)
+            
+            
+            var currentQuestionIndex = 0;
+            var correctAnswersCount = 0;
+            
+            var wrongAnswerSound = new Audio('{% static "audio/failed.mp3" %}');
+            var correctAnswerSound = new Audio('{% static "audio/success.mp3" %}');
+            var bravoSound = new Audio('{% static "audio/finish.mp3" %}');
+            
+            function shuffle(array) {
+                var currentIndex = array.length, temporaryValue, randomIndex;
+                
+                // While there remain elements to shuffle...
+                while (currentIndex !== 0) {
+                    
+                    // Pick a remaining element...
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex--;
+            
+                    // And swap it with the current element.
+                    temporaryValue = array[currentIndex];
+                    array[currentIndex] = array[randomIndex];
+                    array[randomIndex] = temporaryValue;
+                }
+                
+                return array;
+            }
+            
+            function showQuestion(index) {
+                var question = shuffledQuestions[index];
+                document.getElementById('question-text').textContent = question.question_text;
+            
+                var answersList = document.getElementById('answers-list');
+                answersList.innerHTML = '';
+            
+                question.answers.forEach(function (answer, answerIndex) {
+                    var answerItem = document.createElement('div');
+                    answerItem.className = 'list-group-item';
+                    answerItem.textContent = answer.answer_text;
+            
+                    answerItem.addEventListener('click', function () {
+                        var answerItems = document.querySelectorAll('.list-group-item');
+                        answerItems.forEach(function (item) {
+                            item.classList.remove('active');
+                            item.removeEventListener('click', item.clickHandler);
+                        });
+            
+                        if (!answer.is_correct) {
+                            // Jouer le son de mauvaise réponse si la réponse est incorrecte
+                            wrongAnswerSound.play();
+                        }
+            
+                        answerItem.classList.add('active');
+            
+                        if (answer.is_correct) {
+                            correctAnswerSound.play();
+                            correctAnswersCount++;
+                            setTimeout(function () {
+                                currentQuestionIndex++;
+                                if (currentQuestionIndex < shuffledQuestions.length) {
+                                    showQuestion(currentQuestionIndex);
+                                } else {
+                                    bravoSound.play();
+                                    // Le jeu est terminé, masquez la partie des questions
+                                    document.querySelector('.question-card').style.display = 'none';
+                                    
+                                    // Affichez les informations du jeu
+                                    document.getElementById('game-info').style.display = 'block';
+                                    document.getElementById('score').textContent = correctAnswersCount;
+                                    document.getElementById('game-level').textContent = '{{ niveau }}';
+                                    document.getElementById('game-cat').textContent = '{{ category }}';
+                                }
+                            }, 1000);
+                        } else {
+                            var correctAnswerIndex = question.answers.findIndex(a => a.is_correct);
+                            var correctAnswerItem = answerItems[correctAnswerIndex];
+                            correctAnswerItem.classList.add('correct-answer');
+            
+                            setTimeout(function () {
+                                correctAnswerItem.classList.remove('correct-answer');
+                                currentQuestionIndex++;
+                                if (currentQuestionIndex < shuffledQuestions.length) {
+                                    showQuestion(currentQuestionIndex);
+                                } else {
+                                    bravoSound.play();
+                                    // Le jeu est terminé, masquez la partie des questions
+                                    document.querySelector('.question-card').style.display = 'none';
+                                    
+                                    // Affichez les informations du jeu
+                                    document.getElementById('game-info').style.display = 'block';
+                                    document.getElementById('score').textContent = correctAnswersCount;
+                                    document.getElementById('game-level').textContent = '{{ niveau }}';
+                                    document.getElementById('game-cat').textContent = '{{ category }}';
+                                }
+                            }, 1500);
+                        }
+                    });
+            
+                    answersList.appendChild(answerItem);
+                    answerItem.clickHandler = answerItem.addEventListener('click', answerItem);
+                });
+            }
+            
+            showQuestion(currentQuestionIndex);
+
+        });
+    </script>
+</body>
+
+</html>

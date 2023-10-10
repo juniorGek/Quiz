@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User  # Si vous utilisez le modèle d'utilisateur intégré de Django
-
+from django.utils import timezone
 # Modèle de catégorie
 class Category(models.Model):
     name = models.CharField(max_length=255)
@@ -10,12 +10,14 @@ class Category(models.Model):
 
 # Modèle de question
 class Question(models.Model):
+    question = models.CharField(max_length=255 , null=True, blank=True)
     text = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    niveau = models.CharField(max_length=20 , null=True , blank=True)
     correct_answer = models.TextField()
     
     def __str__(self):
-        return self.text
+        return self.question
 
 # Modèle de jeu
 class Game(models.Model):
@@ -23,21 +25,19 @@ class Game(models.Model):
     categories = models.ManyToManyField(Category)  # Utilisez ManyToManyField pour permettre plusieurs catégories
     difficulty = models.CharField(max_length=255)
     score = models.IntegerField()
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"Game by {self.user.username} - {', '.join([category.name for category in self.categories.all()])}"
 
 # Modèle de réponse
 class Answer(models.Model):
-    game = models.ForeignKey(Game, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     chosen_answer = models.TextField()
-    is_correct = models.BooleanField()
+    is_correct = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Answer to {self.question.text} in Game {self.game.id}"
+        return f"reponse de la {self.question.question}"
 
 # Modèle d'entrée du tableau des scores
 class ScoreboardEntry(models.Model):
